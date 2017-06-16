@@ -4,19 +4,14 @@ import random as rand
 from math import exp
 # Load a CSV file
 def load_csv(filename):
-    ifile=open('seeds_dataset.csv', "r")
+    ifile=open(filename, "r")
     reader=csv.reader(ifile)
     inputs=[]
     for row in reader:
         inputs1=[]
-        inputs1.append(float(row[0]))
-        inputs1.append(float(row[1]))
-        inputs1.append(float(row[2]))
-        inputs1.append(float(row[3]))
-        inputs1.append(float(row[4]))
-        inputs1.append(float(row[5]))
-        inputs1.append(float(row[6]))
-        inputs1.append(int(row[7]))
+        for i in range(len(row)-2):
+            inputs1.append(float(row[i]))
+        inputs1.append(int(row[len(row)-1]))
         inputs.append(inputs1)
     ifile.close()
     return inputs
@@ -44,17 +39,17 @@ def cross_validation_split(dataset, n_set):
 			data.append(temp.pop(index))
 		dataset_split.append(data)
 	return dataset_split
-
+ 
 # Calculate accuracy percentage
 def accuracy_cal(actual, predicted):
-	correct = 0;print('predicted:',predicted);print('Actual:',actual)
-	for i in range(len(actual)):
-		if actual[i] == predicted[i]:
-			correct += 1
-	return correct / float(len(actual)) * 100.0
+    correct = 0
+    for i in range(len(actual)):
+        if actual[i] == predicted[i]:
+            correct += 1
+    return correct / float(len(actual)) * 100.0
 
 # Evaluate an algorithm using a cross validation split
-def evaluate(dataset, algorithm, n_set, *args):
+def evaluate(dataset, algorithm, n_set, *args):    
 	split_set = cross_validation_split(dataset, n_set)
 	scores = []
 	for data in split_set:
@@ -75,7 +70,7 @@ def evaluate(dataset, algorithm, n_set, *args):
 # Calculate neuron activation for an input
 def activate(weights, inputs):
     activation = weights[-1]
-    for i in range(len(weights)-2):
+    for i in range(len(weights)-1):
         activation += weights[i] * inputs[i]
     return activation
         
@@ -122,25 +117,18 @@ def backward_propagate_error(network, expected):
 #Updates the Weights Accordingly
 def update_weights(network,inputs,n):
     for layer in range(len(network)):
-        if(layer==0):
-            ly=network[layer]
-            for node in range(len(ly)):
-                neuron=ly[node]
-                for weight in range(len(neuron['weights'])-1):
-                    neuron['weights'][weight]+=n*neuron['delta']*inputs[weight]
-                neuron['weights'][len(neuron['weights'])-1]+=n*neuron['delta']
-        else:
+        if(layer!=0):
             inputs=[]
             prevlayer=network[layer-1]
             for node in prevlayer:
                 inputs.append(node['output'])
             inputs.append(1)
-            ly=network[layer]
-            for node in range(len(ly)):
-                neuron=ly[node]
-                for weight in range(len(neuron['weights'])):
-                    neuron['weights'][weight]+=n*neuron['delta']*inputs[weight]
-                neuron['weights'][len(neuron['weights'])-1]+=n*neuron['delta']
+        ly=network[layer]
+        for node in range(len(ly)):
+            neuron=ly[node]
+            for weight in range(len(neuron['weights'])-1):
+                neuron['weights'][weight]+=n*neuron['delta']*inputs[weight]
+            neuron['weights'][len(neuron['weights'])-1]+=n*neuron['delta']
 
 # Train a network for a fixed number of epochs
 def train_network(network, train, l_rate, n_epoch, n_outputs):
@@ -195,7 +183,6 @@ def back_propagation(train, test, l_rate, n_epoch, n_hidden):
 # load and prepare data
 filename = 'seeds_dataset.csv'
 dataset = load_csv(filename)
-print(dataset[100])
 # normalize input variables
 minmax = findminmax(dataset)
 normalize(dataset, minmax)
@@ -203,7 +190,7 @@ normalize(dataset, minmax)
 # evaluate algorithm
 n_set = 5
 l_rate = 0.3
-n_epoch = 500
+n_epoch = 750
 n_hidden = 5
 scores = evaluate(dataset, back_propagation, n_set, l_rate, n_epoch, n_hidden)
 print('Scores: %s' % scores)
