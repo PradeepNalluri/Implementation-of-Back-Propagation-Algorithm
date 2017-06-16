@@ -1,3 +1,5 @@
+__author__='Pradeep Kumar Nalluri'
+#Thanks to the blog by Dr. Jason Brownlee
 # Backprop on the Seeds Dataset
 import csv
 import random as rand
