@@ -1,5 +1,3 @@
-__author__='Pradeep Kumar Nalluri'
-#Thanks to the blog by Dr. Jason Brownlee
 # Backprop on the Seeds Dataset
 import csv
 import random as rand
@@ -49,7 +47,7 @@ def cross_validation_split(dataset, n_set):
 
 # Calculate accuracy percentage
 def accuracy_cal(actual, predicted):
-	correct = 0
+	correct = 0;print('predicted:',predicted);print('Actual:',actual)
 	for i in range(len(actual)):
 		if actual[i] == predicted[i]:
 			correct += 1
@@ -73,14 +71,14 @@ def evaluate(dataset, algorithm, n_set, *args):
 		accuracy = accuracy_cal(actual, predicted)
 		scores.append(accuracy)
 	return scores
-
+		
 # Calculate neuron activation for an input
 def activate(weights, inputs):
-	activation = weights[-1]
-	for i in range(len(weights)-1):
-		activation += weights[i] * inputs[i]
-	return activation
-
+    activation = weights[-1]
+    for i in range(len(weights)-2):
+        activation += weights[i] * inputs[i]
+    return activation
+        
 # Transfer neuron activation
 def transfer(activation):
 	return 1.0 / (1.0 + exp(-activation))
@@ -128,8 +126,9 @@ def update_weights(network,inputs,n):
             ly=network[layer]
             for node in range(len(ly)):
                 neuron=ly[node]
-                for weight in range(len(neuron['weights'])):
+                for weight in range(len(neuron['weights'])-1):
                     neuron['weights'][weight]+=n*neuron['delta']*inputs[weight]
+                neuron['weights'][len(neuron['weights'])-1]+=n*neuron['delta']
         else:
             inputs=[]
             prevlayer=network[layer-1]
@@ -141,6 +140,7 @@ def update_weights(network,inputs,n):
                 neuron=ly[node]
                 for weight in range(len(neuron['weights'])):
                     neuron['weights'][weight]+=n*neuron['delta']*inputs[weight]
+                neuron['weights'][len(neuron['weights'])-1]+=n*neuron['delta']
 
 # Train a network for a fixed number of epochs
 def train_network(network, train, l_rate, n_epoch, n_outputs):
